@@ -72,33 +72,14 @@ Line21Map		STR			'#                                                             
 Line22Map		STR			'#                                                                              #'
 Line23Map		STR			'################################################################################',FIM_TEXTO
 
-LoseLine0Map		STR			'PONTUACAO:                        SNAKE GAME                TENHA UM BOM JOGO :)'                                                                               '
-LoseLine1Map		STR			'################################################################################'
-LoseLine2Map		STR			'#                                                                              #'
-LoseLine3Map		STR			'#                                                                              #'
-LoseLine4Map		STR			'#                                                                              #'
-LoseLine5Map		STR			'#                                                                              #'
-LoseLine6Map		STR			'#                                                                              #'
-LoseLine7Map		STR			'#                                                                              #'
-LoseLine8Map		STR			'#                                                                              #'
-LoseLine9Map		STR			'#                                                                              #'
-LoseLine10Map		STR			'#                                                                              #'
-LoseLine11Map		STR			'################################## YOU LOSE :( #################################'
-LoseLine12Map		STR			'#                                                                              #'
-LoseLine13Map		STR			'#                                                                              #'
-LoseLine14Map		STR			'#                                                                              #'
-LoseLine15Map		STR			'#                                                                              #'
-LoseLine16Map		STR			'#                                                                              #'
-LoseLine17Map		STR			'#                                                                              #'
-LoseLine18Map		STR			'#                                                                              #'
-LoseLine19Map		STR			'#                                                                              #'
-LoseLine20Map		STR			'#                                                                              #'
-LoseLine21Map		STR			'#                                                                              #'
-LoseLine22Map		STR			'#                                                                              #'
-LoseLine23Map		STR			'################################################################################',FIM_TEXTO
+                                                                           #'
+LoseLine		STR			'################################# GAME OVER :( ################################'
+WinLine			STR			'####################### QUE INCRIVEL, VOCE VENCEU! :D #########################'
 
 StringToPrint 		 WORD 0d  ;endereco da string
 LineNumberToPrint    WORD 0d  ;linha que vai ser printada
+PrintLoseLine		 WORD 0d
+PrintWinLine		 WORD 0d
 
 LineSnakeHead		 WORD 11d
 ColumnSnakeHead	  	 WORD 37d
@@ -326,6 +307,9 @@ AtualizaDezena: MOV R1, '0'
 		MOV R2, R3
 		MOV M[ CURSOR], R2
 		MOV M[ IO_WRITE], R1
+		MOV R3, 57d ;-> CHEGANDO AOS 99 PONTOS, O JOGO É GANHO!
+		CMP R1, R3
+		JMP.Z Win 
 		JMP EndScore
 
 		;------------ aumenta a unidade---------
@@ -466,7 +450,7 @@ MoveSnakeRight: PUSH R1
 
 		MOV R4, M[ ColumnSnakeHead]
 		CMP R4, 78
-		JMP.Z LoseRight
+		JMP.Z Lose
 
 		MOV R1, M[ LineSnakeHead]
 		MOV R2, M[ ColumnSnakeHead]
@@ -490,7 +474,6 @@ MoveSnakeRight: PUSH R1
 		CALL EatFruit
 		JMP End_MoveSnakeRight
 
-LoseRight: CALL PrintLose
 
 End_MoveSnakeRight: POP R4
 				POP R3
@@ -509,7 +492,7 @@ MoveSnakeUp:  PUSH R1
 
         MOV R4, M[ LineSnakeHead]
         CMP R4, 2
-        JMP.Z LoseUp
+        JMP.Z Lose
 
 
 		MOV R1, M[ LineSnakeHead]
@@ -534,7 +517,6 @@ MoveSnakeUp:  PUSH R1
 		CALL EatFruit
 		JMP End_MoveSnakeUp
 
-LoseUp: CALL PrintLose
 
 End_MoveSnakeUp:	POP R4
 					POP R3
@@ -553,7 +535,7 @@ MoveSnakeDown:  PUSH R1
 
         MOV R4, M[ LineSnakeHead]
         CMP R4, 22
-        JMP.Z LoseDown
+        JMP.Z Lose
 
 
 		MOV R1, M[ LineSnakeHead]
@@ -578,8 +560,6 @@ MoveSnakeDown:  PUSH R1
 		CALL EatFruit
 		JMP End_MoveSnakeDown
 
-LoseDown: CALL PrintLose
-
 End_MoveSnakeDown: POP R4
 		POP R3
 		POP R2
@@ -597,7 +577,7 @@ MoveSnakeLeft:  PUSH R1
 
         MOV R4, M[ ColumnSnakeHead]
         CMP R4, 1
-        JMP.Z LoseLeft
+        JMP.Z Lose
 
 
 		MOV R1, M[ LineSnakeHead]
@@ -621,8 +601,6 @@ MoveSnakeLeft:  PUSH R1
 
 		CALL EatFruit
 		JMP End_MoveSnakeLeft
-
-LoseLeft:  CALL PrintLose
 
 End_MoveSnakeLeft:  POP R4
 		POP R3
@@ -689,24 +667,70 @@ PrintMap: PUSH R1
 		  RET;
 		  
 ;----------------------------------------------------------------
-; Rotina: PrintLose
-; printa a tela quando perde
+; Rotina: Lose
 ;----------------------------------------------------------------
-PrintLose : PUSH R1
-		  PUSH R2
-		  PUSH R3
+Lose : PUSH R1
+		PUSH R2 
+		PUSH R3
+		PUSH R4
 
-		  MOV  R1, LoseLine0Map
-		  MOV  M[ StringToPrint ], R1
-		  MOV  R1, 0d
-   		  MOV  M[ LineNumberToPrint ], R1
-		  CALL PrintLine
+		MOV R1, LoseLine
+		MOV M[ PrintLoseLine ], R1
 
-		  POP R3
-		  POP R2
-		  POP R1
+		MOV R4, M[ PrintLoseLine ]			 
+		MOV R2, 0d
 
-		  RET
+PrintLose: MOV R1, 12d
+		MOV R3, M[ R4 ]
+		SHL R1, 8d
+		OR R1, R2
+		MOV M[ CURSOR ], R1
+		MOV M[ IO_WRITE ], R3
+
+		INC R2
+		INC R4
+		CMP R2, 79d
+		JMP.NZ PrintLose
+
+		POP R4
+		POP R3
+		POP R2
+		POP R1
+
+		JMP Cycle
+
+;----------------------------------------------------------------
+; Rotina: Win
+;----------------------------------------------------------------
+Win : PUSH R1
+		PUSH R2 
+		PUSH R3
+		PUSH R4
+
+		MOV R1, WinLine
+		MOV M[ PrintWinLine ], R1
+
+		MOV R4, M[ PrintWinLine ]			 
+		MOV R2, 0d
+
+PrintWin: MOV R1, 12d
+		MOV R3, M[ R4 ]
+		SHL R1, 8d
+		OR R1, R2
+		MOV M[ CURSOR ], R1
+		MOV M[ IO_WRITE ], R3
+
+		INC R2
+		INC R4
+		CMP R2, 79d
+		JMP.NZ PrintWin
+
+		POP R4
+		POP R3
+		POP R2
+		POP R1
+
+		JMP Cycle
 
 ;-----------------------------------------------------------------------------
 ; Função Main
