@@ -302,32 +302,41 @@ Rnd_Rotate: ROR M[Random_Var], 1
 ;----------------------------------------------------------------
 Score:  PUSH R1
 		PUSH R2
+		PUSH R3
 
 		MOV R1, M[ ScoreUnid]
 		MOV R2, M[ ScoreDez]
+		MOV R3, 57d
 
-		CMP R1, 57d ;compara se a unidade é 9 (em ASCII)
+		CMP R1, R3 ;compara se a unidade é 9 (em ASCII)
 		JMP.Z AtualizaDezena ; caso sim, atualiza a dezena
-		JMP.NZ AtualizaUnid ; caso sim, atualiza a dezena
+		JMP.NZ AtualizaUnid ; caso não, atualiza a unidade
 
-AtualizaDezena: MOV R1, '0'
+		;------------zera a unidade---------
+AtualizaDezena: MOV R1, '0' 
 		MOV M[ ScoreUnid], R1
-		MOV R2, 12d ;posição na tela
+		MOV R3, 12d
+		MOV R2, R3 ;posição na tela
 		MOV M[ CURSOR], R2
 		MOV M[ IO_WRITE], R1
+		;---------aumenta a dezena----------
 		INC M[ ScoreDez]
 		MOV R1, M[ ScoreDez]
-		MOV R2, 11d
+		MOV R3, 11d
+		MOV R2, R3
 		MOV M[ CURSOR], R2
 		MOV M[ IO_WRITE], R1
-		NOP
+		JMP EndScore
 
+		;------------ aumenta a unidade---------
 AtualizaUnid:  INC M[ ScoreUnid]
+		MOV R1, M[ ScoreUnid]
 		MOV R2, 12d
 		MOV M[ CURSOR], R2
 		MOV M[ IO_WRITE], R1
 		NOP
 
+EndScore:POP R3
 		POP R2
 		POP R1
 
