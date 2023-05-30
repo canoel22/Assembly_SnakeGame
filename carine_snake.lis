@@ -89,12 +89,14 @@
 	ColumnArg                        8F0A         VARIABLE
 	ScoreDez                         8F0B         VARIABLE
 	ScoreUnid                        8F0C         VARIABLE
-	Random_Var                       8F0D         VARIABLE
-	Radom_State                      8F0E         VARIABLE
-	LineArgShiftList                 8F0F         VARIABLE
-	ColumnArgShiftList               8F10         VARIABLE
-	ListTail                         8F11         VARIABLE
-	ListHead                         8F12         VARIABLE
+	ScoreUndidLine                   8F0D         VARIABLE
+	ScoreUnidColumn                  8F0E         VARIABLE
+	Random_Var                       8F0F         VARIABLE
+	Radom_State                      8F10         VARIABLE
+	LineArgShiftList                 8F11         VARIABLE
+	ColumnArgShiftList               8F12         VARIABLE
+	ListTail                         8F13         VARIABLE
+	ListHead                         8F14         VARIABLE
 	INT0                             FE00         VARIABLE
 	INT1                             FE01         VARIABLE
 	INT2                             FE02         VARIABLE
@@ -110,30 +112,32 @@
 	RandomV1                         0079            LABEL
 	Rnd_Rotate                       0083            LABEL
 	Score                            0087            LABEL
-	InsertList                       008E            LABEL
-	ConfigureTimer                   00A1            LABEL
-	RightKeyPressed                  00AC            LABEL
-	LeftKeyPressed                   00B3            LABEL
-	UpKeyPressed                     00BA            LABEL
-	DownKeyPressed                   00C1            LABEL
-	Timer                            00C8            LABEL
-	MoveSnakeRight                   00E3            LABEL
-	LoseRight                        010C            LABEL
-	End_MoveSnakeRight               010E            LABEL
-	MoveSnakeUp                      0113            LABEL
-	LoseUp                           013C            LABEL
-	End_MoveSnakeUp                  013E            LABEL
-	MoveSnakeDown                    0143            LABEL
-	LoseDown                         016C            LABEL
-	End_MoveSnakeDown                016E            LABEL
-	MoveSnakeLeft                    0173            LABEL
-	LoseLeft                         019C            LABEL
-	End_MoveSnakeLeft                019E            LABEL
-	PrintLine                        01A3            LABEL
-	while_PrintColumn                01A9            LABEL
-	while_PrintLine                  01AB            LABEL
-	PrintMap                         01C8            LABEL
-	PrintLose                        01D9            LABEL
-	Main                             01EA            LABEL
-	Cycle                            0246            LABEL
-	Halt                             0247            LABEL
+	AtualizaDezena                   0093            LABEL
+	AtualizaUnid                     00A8            LABEL
+	InsertList                       00B4            LABEL
+	ConfigureTimer                   00C7            LABEL
+	RightKeyPressed                  00D2            LABEL
+	LeftKeyPressed                   00D9            LABEL
+	UpKeyPressed                     00E0            LABEL
+	DownKeyPressed                   00E7            LABEL
+	Timer                            00EE            LABEL
+	MoveSnakeRight                   0109            LABEL
+	LoseRight                        0132            LABEL
+	End_MoveSnakeRight               0134            LABEL
+	MoveSnakeUp                      0139            LABEL
+	LoseUp                           0162            LABEL
+	End_MoveSnakeUp                  0164            LABEL
+	MoveSnakeDown                    0169            LABEL
+	LoseDown                         0192            LABEL
+	End_MoveSnakeDown                0194            LABEL
+	MoveSnakeLeft                    0199            LABEL
+	LoseLeft                         01C2            LABEL
+	End_MoveSnakeLeft                01C4            LABEL
+	PrintLine                        01C9            LABEL
+	while_PrintColumn                01CF            LABEL
+	while_PrintLine                  01D1            LABEL
+	PrintMap                         01EE            LABEL
+	PrintLose                        01FF            LABEL
+	Main                             0210            LABEL
+	Cycle                            0220            LABEL
+	Halt                             0221            LABEL
