@@ -30,6 +30,8 @@
 	UP_KEY_PRESSED                   0002         CONSTANT
 	DOWN_KEY_PRESSED                 0003         CONSTANT
 	TIME_TO_MOVE                     0005         CONSTANT
+	FALSE                            0000         CONSTANT
+	TRUE                             0001         CONSTANT
 	Line0Map                         8000           STRING
 	Line1Map                         8050           STRING
 	Line2Map                         80A0           STRING
@@ -55,69 +57,77 @@
 	Line22Map                        86E0           STRING
 	Line23Map                        8730           STRING
 	LoseLine                         8781           STRING
-	WinLine                          87D0           STRING
+	WinLine                          87D1           STRING
 	StringToPrint                    8821         VARIABLE
 	LineNumberToPrint                8822         VARIABLE
 	PrintLoseLine                    8823         VARIABLE
 	PrintWinLine                     8824         VARIABLE
-	LineSnakeHead                    8825         VARIABLE
-	ColumnSnakeHead                  8826         VARIABLE
-	LineFruit                        8827         VARIABLE
-	ColumnFruit                      8828         VARIABLE
-	LastKeyPressed                   8829         VARIABLE
-	LineArg                          882A         VARIABLE
-	ColumnArg                        882B         VARIABLE
-	ScoreDez                         882C         VARIABLE
-	ScoreUnid                        882D         VARIABLE
-	ScoreUndidLine                   882E         VARIABLE
-	ScoreUnidColumn                  882F         VARIABLE
-	Random_Var                       8830         VARIABLE
-	Radom_State                      8831         VARIABLE
-	LineArgShiftList                 8832         VARIABLE
-	ColumnArgShiftList               8833         VARIABLE
-	ListTail                         8834         VARIABLE
-	ListHead                         8835         VARIABLE
+	GameOver                         8825         VARIABLE
+	LineSnakeHead                    8826         VARIABLE
+	ColumnSnakeHead                  8827         VARIABLE
+	LineFruit                        8828         VARIABLE
+	ColumnFruit                      8829         VARIABLE
+	LastKeyPressed                   882A         VARIABLE
+	PreviousTailLine                 882B         VARIABLE
+	PreviousColumnLine               882C         VARIABLE
+	LineArg                          882D         VARIABLE
+	ColumnArg                        882E         VARIABLE
+	ScoreDez                         882F         VARIABLE
+	ScoreUnid                        8830         VARIABLE
+	ScoreUndidLine                   8831         VARIABLE
+	ScoreUnidColumn                  8832         VARIABLE
+	Random_Var                       8833         VARIABLE
+	Radom_State                      8834         VARIABLE
+	LineArgShiftList                 8835         VARIABLE
+	ColumnArgShiftList               8836         VARIABLE
+	ListTail                         8837         VARIABLE
+	ListHead                         8838         VARIABLE
 	INT0                             FE00         VARIABLE
 	INT1                             FE01         VARIABLE
 	INT2                             FE02         VARIABLE
 	INT3                             FE03         VARIABLE
 	INT15                            FE0F         VARIABLE
 	EsqueletoRotina                  0002            LABEL
-	ShiftList                        0009            LABEL
+	ShiftListAndIncreaseList         0009            LABEL
 	CicloShift                       0016            LABEL
-	EatFruit                         0032            LABEL
-	NewFruitPosition                 0047            LABEL
-	Endif                            006B            LABEL
-	EatFruitEnd                      0073            LABEL
-	RandomV1                         0079            LABEL
-	Rnd_Rotate                       0083            LABEL
-	Score                            0087            LABEL
-	AtualizaDezena                   0095            LABEL
-	AtualizaUnid                     00B2            LABEL
-	EndScore                         00BD            LABEL
-	InsertList                       00C1            LABEL
-	ConfigureTimer                   00D4            LABEL
-	RightKeyPressed                  00DF            LABEL
-	LeftKeyPressed                   00E6            LABEL
-	UpKeyPressed                     00ED            LABEL
-	DownKeyPressed                   00F4            LABEL
-	Timer                            00FB            LABEL
-	MoveSnakeRight                   0116            LABEL
-	End_MoveSnakeRight               013F            LABEL
-	MoveSnakeUp                      0144            LABEL
-	End_MoveSnakeUp                  016D            LABEL
-	MoveSnakeDown                    0172            LABEL
-	End_MoveSnakeDown                019B            LABEL
-	MoveSnakeLeft                    01A0            LABEL
-	End_MoveSnakeLeft                01C9            LABEL
-	PrintLine                        01CE            LABEL
-	while_PrintColumn                01D4            LABEL
-	while_PrintLine                  01D6            LABEL
-	PrintMap                         01F3            LABEL
-	Lose                             0204            LABEL
-	PrintLose                        0210            LABEL
-	Win                              0225            LABEL
-	PrintWin                         0231            LABEL
-	Main                             0246            LABEL
-	Cycle                            0256            LABEL
-	Halt                             0257            LABEL
+	ShiftListAndMaintainSize         004D            LABEL
+	CicloShiftAndMaintainSize        005A            LABEL
+	EatFruit                         0091            LABEL
+	NewFruitPosition                 00A5            LABEL
+	Endif                            00C8            LABEL
+	EatFruitEnd                      00D0            LABEL
+	RandomV1                         00D6            LABEL
+	Rnd_Rotate                       00E0            LABEL
+	Score                            00E4            LABEL
+	AtualizaDezena                   00F2            LABEL
+	AtualizaUnid                     010F            LABEL
+	EndScore                         011A            LABEL
+	InsertList                       011E            LABEL
+	ConfigureTimer                   0131            LABEL
+	RightKeyPressed                  013C            LABEL
+	LeftKeyPressed                   0143            LABEL
+	UpKeyPressed                     014A            LABEL
+	DownKeyPressed                   0151            LABEL
+	Timer                            0158            LABEL
+	MoveSnakeRight                   0173            LABEL
+	CheckEatFruit                    0183            LABEL
+	UpdateSnakeToRight               0185            LABEL
+	MoveSnakeUp                      0196            LABEL
+	UpdateSnakeUp                    01A6            LABEL
+	MoveSnakeDown                    01B7            LABEL
+	UpdateSnakeDown                  01C7            LABEL
+	MoveSnakeLeft                    01D8            LABEL
+	UpdateSnakeToLeft                01E8            LABEL
+	PrintLine                        01F9            LABEL
+	while_PrintColumn                01FF            LABEL
+	while_PrintLine                  0201            LABEL
+	PrintMap                         021E            LABEL
+	Lose                             022F            LABEL
+	PrintLose                        023B            LABEL
+	LoseForever                      024A            LABEL
+	Win                              0251            LABEL
+	PrintWin                         025D            LABEL
+	WinForever                       026C            LABEL
+	Main                             0273            LABEL
+	Cycle                            028D            LABEL
+	Halt                             028E            LABEL

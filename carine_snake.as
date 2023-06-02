@@ -37,6 +37,9 @@ UP_KEY_PRESSED    EQU     2d
 DOWN_KEY_PRESSED  EQU     3d
 
 TIME_TO_MOVE      EQU     5d
+
+FALSE 				EQU 0d
+TRUE 			EQU 1d
 ;------------------------------------------------------------------------------
 ; ZONA II: definicao de variaveis
 ;          Pseudo-instrucoes : WORD - palavra (16 bits)
@@ -73,13 +76,15 @@ Line22Map		STR			'#                                                             
 Line23Map		STR			'################################################################################',FIM_TEXTO
 
                                                                            #'
-LoseLine		STR			'################################# GAME OVER :( ################################'
-WinLine			STR			'####################### QUE INCRIVEL, VOCE VENCEU! :D #########################'
+LoseLine		STR			'################################# GAME OVER :( ################################',FIM_TEXTO
+WinLine			STR			'####################### QUE INCRIVEL, VOCE VENCEU! :D #########################',FIM_TEXTO
 
 StringToPrint 		 WORD 0d  ;endereco da string
 LineNumberToPrint    WORD 0d  ;linha que vai ser printada
 PrintLoseLine		 WORD 0d
 PrintWinLine		 WORD 0d
+
+GameOver		WORD FALSE
 
 LineSnakeHead		 WORD 11d
 ColumnSnakeHead	  	 WORD 37d
@@ -87,12 +92,15 @@ ColumnSnakeHead	  	 WORD 37d
 LineFruit            WORD 11d
 ColumnFruit          WORD 40d
 
-LastKeyPressed       WORD 0d
+LastKeyPressed       WORD RIGHT_KEY_PRESSED
 
-;------------ score ------------- 
+PreviousTailLine     WORD 0d
+PreviousColumnLine   WORD 0d
+
 LineArg              WORD 0d
 ColumnArg            WORD 0d
 
+;------------ score ------------- 
 ScoreDez			WORD '0'
 ScoreUnid			WORD '0'
 
@@ -150,9 +158,9 @@ EsqueletoRotina: PUSH R1
 		RET
 
 ;----------------------------------------------------------------
-; Rotina: ShiftList
+; Rotina: ShiftListAndIncreaseList
 ;----------------------------------------------------------------
-ShiftList: PUSH R1
+ShiftListAndIncreaseList: PUSH R1
 		PUSH R2
 		PUSH R3
 		PUSH R4
@@ -160,14 +168,13 @@ ShiftList: PUSH R1
 		PUSH R6
 
 		MOV R1, M[ListTail]
-		MOV R2, 2d
+		MOV R2, 1d
 		MOV R6, ListHead 
 		SUB R1, R2 ; r1 ORIGEM
 				
  
 ;------------------- faz o shift da lista toda pro lado ----------------------
-CicloShift: DEC R1
-		MOV R4, M[R1]
+CicloShift:MOV R4, M[R1]
 		MOV R5, R1
 		MOV R2, 2d
 		ADD R5, R2 ; R5 DESTINO
@@ -181,11 +188,35 @@ CicloShift: DEC R1
 
 ;--------------------- adiciona a nova pos da cabeça ------------------------
 
-		MOV R1, M[ LineArgShiftList ]
-		MOV R2, M[ ColumnArgShiftList ]
+		MOV R1, M[ LineArgShiftList ] ; linha da nova cabeca
+		MOV R2, M[ ColumnArgShiftList ] ; coluna da nova cabeca
 		MOV M[R6], R1
 		INC R6
 		MOV M[R6], R2
+
+		SHL R1, 8d 
+		OR  R1, R2
+		MOV M[ CURSOR ], R1
+		MOV R1, 'o'
+		MOV M[ IO_WRITE ], R1
+
+
+		MOV R1, M[ListTail] ; Tail line
+		MOV R1, M[ R1 ]
+		MOV R2, M[ListTail]
+		INC R2
+		MOV R2, M[ R2 ]              ; Tail Column
+
+		SHL R1, 8d 
+		OR  R1, R2
+		MOV M[ CURSOR ], R1
+		MOV R1, 'o'
+		MOV M[ IO_WRITE ], R1
+
+		MOV R1, M[ListTail]
+		MOV M[R1], R0
+		INC R1
+		MOV M[R1], R0
 
 		POP R6
 		POP R5
@@ -197,6 +228,78 @@ CicloShift: DEC R1
 		RET
 
 ;----------------------------------------------------------------
+; Rotina: ShiftListAndMaitainSize
+;----------------------------------------------------------------
+ShiftListAndMaintainSize: PUSH R1
+		PUSH R2
+		PUSH R3
+		PUSH R4
+		PUSH R5
+		PUSH R6
+
+		MOV R1, M[ListTail]
+		MOV R2, 1d
+		MOV R6, ListHead 
+		SUB R1, R2 ; r1 ORIGEM
+				
+ 
+;------------------- faz o shift da lista toda pro lado ----------------------
+CicloShiftAndMaintainSize:MOV R4, M[R1]
+		MOV R5, R1
+		MOV R2, 2d
+		ADD R5, R2 ; R5 DESTINO
+		MOV M[R5], R4			
+		DEC R1
+		DEC R5
+		MOV R4, M[R1]
+		MOV M[R5], R4
+		CMP R1, R6
+		JMP.NZ CicloShiftAndMaintainSize
+
+;--------------------- adiciona a nova pos da cabeça ------------------------
+
+		MOV R1, M[ LineArgShiftList ] ; linha da nova cabeca
+		MOV R2, M[ ColumnArgShiftList ] ; coluna da nova cabeca
+		MOV M[R6], R1
+		INC R6
+		MOV M[R6], R2
+
+		
+		SHL R1, 8d 
+		OR  R1, R2
+		MOV M[ CURSOR ], R1
+		MOV R1, 'o'
+		MOV M[ IO_WRITE ], R1
+
+
+		MOV R1, M[ListTail] ; Tail line
+		MOV R1, M[ R1 ]
+		MOV R2, M[ListTail]
+		INC R2
+		MOV R2, M[ R2 ]              ; Tail Column
+
+		SHL R1, 8d 
+		OR  R1, R2
+		MOV M[ CURSOR ], R1
+		MOV R1, ' '
+		MOV M[ IO_WRITE ], R1
+
+		MOV R1, M[ListTail]
+		MOV M[R1], R0
+		INC R1
+		MOV M[R1], R0
+
+		POP R6
+		POP R5
+		POP R4
+		POP R3
+		POP R2
+		POP R1
+
+		RET
+
+
+;----------------------------------------------------------------
 ; Rotina: EatFruit
 ;----------------------------------------------------------------
 EatFruit: PUSH R1
@@ -205,17 +308,27 @@ EatFruit: PUSH R1
 		PUSH R4
 		PUSH R5
 
-		MOV R1, M[LineFruit]
-		MOV R2, M[ LineSnakeHead]
+		MOV R1, M[ LineFruit]
+		MOV R2, M[ ListHead]
 		CMP R1, R2
 		JMP.NZ EatFruitEnd
 
-		MOV R2, M[ ColumnFruit] 
-		MOV R1, M[ ColumnSnakeHead]
+		INC R2
+		MOV R1, M[ ColumnFruit] 
 		CMP R1, R2
 		JMP.NZ EatFruitEnd
 
 		CALL Score
+
+;------------------ atualiza a lista e printa------------	
+
+		;MOV R1, M[ LineSnakeHead ]
+		;MOV M[ LineArgShiftList], R1
+
+		;INC M[ ColumnSnakeHead ]
+		;MOV R1, M[ ColumnSnakeHead ]
+		;MOV M[ ColumnArgShiftList], R1
+		;CALL ShiftListAndIncreaseList
 
 ;------------------calcula a nova pos da comida------------				  
 
@@ -236,13 +349,13 @@ NewFruitPosition:CALL RandomV1
 		MOV R1, M [ LineFruit]
 		MOV R2, M [ ColumnFruit]
 
-		MOV R4, M[ LineSnakeHead]
-		MOV R5, M[ ColumnSnakeHead]
+		MOV R4, M[ ListHead]
 
 		CMP R1, R4
 		JMP.NZ Endif
 
-		CMP R2, R5
+		INC R4
+		CMP R2, R4
 		JMP.Z NewFruitPosition
 
 		Endif: SHL R1, 8d
@@ -290,8 +403,8 @@ Score:  PUSH R1
 		MOV R3, 57d
 
 		CMP R1, R3 ;compara se a unidade é 9 (em ASCII)
-		JMP.Z AtualizaDezena ; caso sim, atualiza a dezena
-		JMP.NZ AtualizaUnid ; caso não, atualiza a unidade
+		JMP.Z AtualizaDezena 
+		JMP.NZ AtualizaUnid 
 
 		;------------zera a unidade---------
 AtualizaDezena: MOV R1, '0' 
@@ -309,7 +422,7 @@ AtualizaDezena: MOV R1, '0'
 		MOV M[ IO_WRITE], R1
 		MOV R3, 57d ;-> CHEGANDO AOS 99 PONTOS, O JOGO É GANHO!
 		CMP R1, R3
-		JMP.Z Win 
+		CALL.Z Win 
 		JMP EndScore
 
 		;------------ aumenta a unidade---------
@@ -347,7 +460,6 @@ InsertList:  PUSH R1
 		POP R1
 
 		RET
-
 ;----------------------------------------------------------------
 ; Rotina: ConfigureTimer
 ;----------------------------------------------------------------
@@ -448,167 +560,146 @@ MoveSnakeRight: PUSH R1
 		PUSH R3
 		PUSH R4
 
-		MOV R4, M[ ColumnSnakeHead]
-		CMP R4, 78
-		JMP.Z Lose
+		;------------ colisão com a parede ---------
+		MOV R1, M[ ColumnSnakeHead ]
+		CMP R1, 78d
+		JMP.NZ CheckEatFruit
 
-		MOV R1, M[ LineSnakeHead]
-		MOV R2, M[ ColumnSnakeHead]
-		SHL R1, 8d
-		OR R1, R2
-		MOV M[ CURSOR ], R1
-		MOV R3, ' '
-		MOV M[ IO_WRITE ], R3
+		MOV R1, TRUE
+		MOV M[ GameOver ], R1
+		CALL Lose
 
+		;------------ cresce a cobrinha ---------
+CheckEatFruit: CALL EatFruit
 
-		MOV R1, M[ LineSnakeHead]
-		MOV R2, M[ ColumnSnakeHead]
-		INC R2
-		MOV M[ ColumnSnakeHead], R2
-		SHL R1, 8d
-		OR R1, R2
-		MOV M[ CURSOR ], R1
-		MOV R3, 'o'
-		MOV M[ IO_WRITE ], R3
+		;-------------- movimentação -----------
 
-		CALL EatFruit
-		JMP End_MoveSnakeRight
+UpdateSnakeToRight: MOV R1, M[ LineSnakeHead ]
+		MOV M[ LineArgShiftList], R1
 
+		INC M[ ColumnSnakeHead ]
+		MOV R1, M[ ColumnSnakeHead ]
+		MOV M[ ColumnArgShiftList], R1
+		CALL ShiftListAndMaintainSize
 
-End_MoveSnakeRight: POP R4
-				POP R3
-				POP R2
-				POP R1
+		POP R4
+		POP R3
+		POP R2
+		POP R1
 
-		    RET
+	RET
+
 
 ;----------------------------------------------------------------
 ; Rotina: MoveSnakeUp
 ;----------------------------------------------------------------
 MoveSnakeUp:  PUSH R1
-				PUSH R2
-				PUSH R3
-        PUSH R4
+		PUSH R2
+		PUSH R3
+		PUSH R4
+		
+		;------------ colisão com a parede ---------
+		MOV R1, M[ LineSnakeHead ]
+		CMP R1, 2d
+		JMP.NZ UpdateSnakeUp
 
-        MOV R4, M[ LineSnakeHead]
-        CMP R4, 2
-        JMP.Z Lose
+		MOV R1, TRUE
+		MOV M[ GameOver ], R1
+		CALL Lose
 
+		;------------ cresce a cobrinha ---------
+;CheckEatFruit: CALL EatFruit
 
-		MOV R1, M[ LineSnakeHead]
-		MOV R2, M[ ColumnSnakeHead]
-		SHL R1, 8d
-		OR R1, R2
-		MOV M[ CURSOR ], R1
-		MOV R3, ' '
-		MOV M[ IO_WRITE ], R3
+		;-------------- movimentação -----------
 
+UpdateSnakeUp: MOV R1, M[ ColumnSnakeHead ]
+		MOV M[ ColumnArgShiftList], R1
 
-		MOV R1, M[ LineSnakeHead]
-		MOV R2, M[ ColumnSnakeHead]
-		DEC R1
-		MOV M[ LineSnakeHead], R1
-		SHL R1, 8d
-		OR R1, R2
-		MOV M[ CURSOR ], R1
-		MOV R3, 'o'
-		MOV M[ IO_WRITE ], R3
+		DEC M[ LineSnakeHead ]
+		MOV R1, M[ LineSnakeHead ]
+		MOV M[ LineArgShiftList], R1
+		CALL ShiftListAndMaintainSize
 
-		CALL EatFruit
-		JMP End_MoveSnakeUp
+		POP R4
+		POP R3
+		POP R2
+		POP R1
 
-
-End_MoveSnakeUp:	POP R4
-					POP R3
-					POP R2
-					POP R1
-
-	      RET
+	RET
 
 ;----------------------------------------------------------------
 ; Rotina: MoveSnakeDown
 ;----------------------------------------------------------------
 MoveSnakeDown:  PUSH R1
-				PUSH R2
-				PUSH R3
-        PUSH R4
+		PUSH R2
+		PUSH R3
+		PUSH R4
+		
+		;------------ colisão com a parede ---------
+		MOV R1, M[ LineSnakeHead ]
+		CMP R1, 22d
+		JMP.NZ UpdateSnakeDown
 
-        MOV R4, M[ LineSnakeHead]
-        CMP R4, 22
-        JMP.Z Lose
+		MOV R1, TRUE
+		MOV M[ GameOver ], R1
+		CALL Lose
 
+		;------------ cresce a cobrinha ---------
+;CheckEatFruit: CALL EatFruit
 
-		MOV R1, M[ LineSnakeHead]
-		MOV R2, M[ ColumnSnakeHead]
-		SHL R1, 8d
-		OR R1, R2
-		MOV M[ CURSOR ], R1
-		MOV R3, ' '
-		MOV M[ IO_WRITE ], R3
+		;-------------- movimentação -----------
 
+UpdateSnakeDown: MOV R1, M[ ColumnSnakeHead ]
+		MOV M[ ColumnArgShiftList], R1
 
-        MOV R1, M[ LineSnakeHead]
-			  MOV R2, M[ ColumnSnakeHead]
-        INC R1
-        MOV M[ LineSnakeHead], R1
-		SHL R1, 8d
-		OR R1, R2
-		MOV M[ CURSOR ], R1
-		MOV R3, 'o'
-		MOV M[ IO_WRITE ], R3
+		INC M[ LineSnakeHead ]
+		MOV R1, M[ LineSnakeHead ]
+		MOV M[ LineArgShiftList], R1
+		CALL ShiftListAndMaintainSize
 
-		CALL EatFruit
-		JMP End_MoveSnakeDown
-
-End_MoveSnakeDown: POP R4
+		POP R4
 		POP R3
 		POP R2
 		POP R1
 
-		    RET
+	RET
 
 ;----------------------------------------------------------------
 ; Rotina: MoveSnakeLeft
 ;----------------------------------------------------------------
 MoveSnakeLeft:  PUSH R1
-				PUSH R2
-				PUSH R3
-        PUSH R4
+						PUSH R2
+		PUSH R3
+		PUSH R4
+		
+		;------------ colisão com a parede ---------
+		MOV R1, M[ ColumnSnakeHead ]
+		CMP R1, 1d
+		JMP.NZ UpdateSnakeToLeft
 
-        MOV R4, M[ ColumnSnakeHead]
-        CMP R4, 1
-        JMP.Z Lose
+		MOV R1, TRUE
+		MOV M[ GameOver ], R1
+		CALL Lose
 
+		;------------ cresce a cobrinha ---------
+;CheckEatFruit: CALL EatFruit
 
-		MOV R1, M[ LineSnakeHead]
-		MOV R2, M[ ColumnSnakeHead]
-		SHL R1, 8d
-		OR R1, R2
-		MOV M[ CURSOR ], R1
-		MOV R3, ' '
-		MOV M[ IO_WRITE ], R3
+		;-------------- movimentação -----------
 
+UpdateSnakeToLeft: MOV R1, M[ LineSnakeHead ]
+		MOV M[ LineArgShiftList], R1
 
-		MOV R1, M[ LineSnakeHead]
-		MOV R2, M[ ColumnSnakeHead]
-		DEC R2
-		MOV M[ ColumnSnakeHead], R2
-		SHL R1, 8d
-		OR R1, R2
-		MOV M[ CURSOR ], R1
-		MOV R3, 'o'
-		MOV M[ IO_WRITE ], R3
+		DEC M[ ColumnSnakeHead ]
+		MOV R1, M[ ColumnSnakeHead ]
+		MOV M[ ColumnArgShiftList], R1
+		CALL ShiftListAndMaintainSize
 
-		CALL EatFruit
-		JMP End_MoveSnakeLeft
-
-End_MoveSnakeLeft:  POP R4
+		POP R4
 		POP R3
 		POP R2
 		POP R1
 
-		RET
-
+	RET
 
 ;----------------------------------------------------------------
 ; Rotina: PrintLine
@@ -692,12 +783,14 @@ PrintLose: MOV R1, 12d
 		CMP R2, 79d
 		JMP.NZ PrintLose
 
+LoseForever: JMP LoseForever
+
 		POP R4
 		POP R3
 		POP R2
 		POP R1
 
-		JMP Cycle
+		RET
 
 ;----------------------------------------------------------------
 ; Rotina: Win
@@ -725,12 +818,14 @@ PrintWin: MOV R1, 12d
 		CMP R2, 79d
 		JMP.NZ PrintWin
 
+WinForever: JMP WinForever
+
 		POP R4
 		POP R3
 		POP R2
 		POP R1
 
-		JMP Cycle
+		RET
 
 ;-----------------------------------------------------------------------------
 ; Função Main
@@ -743,6 +838,12 @@ Main:	ENI
 
 		MOV     R1, ListHead
 		MOV     M[ListTail], R1
+
+		MOV R1, M[LineSnakeHead]
+		MOV M[ LineArg], R1
+		MOV R1, M[ ColumnSnakeHead]
+		MOV M [ColumnArg], R1
+		CALL InsertList
 
 		CALL ConfigureTimer
 		CALL PrintMap
