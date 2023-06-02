@@ -158,6 +158,50 @@ EsqueletoRotina: PUSH R1
 		RET
 
 ;----------------------------------------------------------------
+; Rotina: PrintSnake
+;----------------------------------------------------------------
+PrintSnake: PUSH R1
+		PUSH R2
+		PUSH R3
+
+		MOV R1, M[ListHead]
+
+;------------------- loop pra printar a cobra ----------------------
+
+PrintaO: MOV R3, R1
+		INC R3
+		SHL R1, 8d 
+		OR  R1, R3
+		MOV M[ CURSOR ], R1
+		MOV R1, 'o'
+		MOV M[ IO_WRITE ], R1
+		MOV R1, M[ListHead] ;Compara se já chegamos à cabeça
+		MOV R2, M[ListTail]
+		INC R1
+		CMP R1, R2 
+		JMP.NZ PrintaO
+
+;------------------- printa a cauda ----------------------
+
+		MOV R1, M[ListTail] ; Tail line
+		MOV R1, M[ R1 ]
+		MOV R2, M[ListTail]
+		INC R2
+		MOV R2, M[ R2 ]              ; Tail Column
+
+		SHL R1, 8d 
+		OR  R1, R2
+		MOV M[ CURSOR ], R1
+		MOV R1, ' '
+		MOV M[ IO_WRITE ], R1
+
+		POP R3
+		POP R2
+		POP R1
+
+		RET
+
+;----------------------------------------------------------------
 ; Rotina: ShiftListAndIncreaseList
 ;----------------------------------------------------------------
 ShiftListAndIncreaseList: PUSH R1
@@ -309,12 +353,12 @@ EatFruit: PUSH R1
 		PUSH R5
 
 		MOV R1, M[ LineFruit]
-		MOV R2, M[ ListHead]
+		MOV R2, M[ LineSnakeHead]
 		CMP R1, R2
 		JMP.NZ EatFruitEnd
 
-		INC R2
-		MOV R1, M[ ColumnFruit] 
+		MOV R1, M[ ColumnFruit]
+		MOV R2, M[ ColumnSnakeHead ]
 		CMP R1, R2
 		JMP.NZ EatFruitEnd
 
@@ -563,14 +607,14 @@ MoveSnakeRight: PUSH R1
 		;------------ colisão com a parede ---------
 		MOV R1, M[ ColumnSnakeHead ]
 		CMP R1, 78d
-		JMP.NZ CheckEatFruit
+		JMP.NZ CheckEatFruitRight
 
 		MOV R1, TRUE
 		MOV M[ GameOver ], R1
 		CALL Lose
 
 		;------------ cresce a cobrinha ---------
-CheckEatFruit: CALL EatFruit
+CheckEatFruitRight: CALL EatFruit
 
 		;-------------- movimentação -----------
 
@@ -601,14 +645,14 @@ MoveSnakeUp:  PUSH R1
 		;------------ colisão com a parede ---------
 		MOV R1, M[ LineSnakeHead ]
 		CMP R1, 2d
-		JMP.NZ UpdateSnakeUp
+		JMP.NZ CheckEatFruitUp
 
 		MOV R1, TRUE
 		MOV M[ GameOver ], R1
 		CALL Lose
 
 		;------------ cresce a cobrinha ---------
-;CheckEatFruit: CALL EatFruit
+CheckEatFruitUp: CALL EatFruit
 
 		;-------------- movimentação -----------
 
@@ -638,14 +682,14 @@ MoveSnakeDown:  PUSH R1
 		;------------ colisão com a parede ---------
 		MOV R1, M[ LineSnakeHead ]
 		CMP R1, 22d
-		JMP.NZ UpdateSnakeDown
+		JMP.NZ CheckEatFruitDown
 
 		MOV R1, TRUE
 		MOV M[ GameOver ], R1
 		CALL Lose
 
 		;------------ cresce a cobrinha ---------
-;CheckEatFruit: CALL EatFruit
+CheckEatFruitDown: CALL EatFruit
 
 		;-------------- movimentação -----------
 
@@ -675,14 +719,14 @@ MoveSnakeLeft:  PUSH R1
 		;------------ colisão com a parede ---------
 		MOV R1, M[ ColumnSnakeHead ]
 		CMP R1, 1d
-		JMP.NZ UpdateSnakeToLeft
+		JMP.NZ CheckEatFruitLeft
 
 		MOV R1, TRUE
 		MOV M[ GameOver ], R1
 		CALL Lose
 
 		;------------ cresce a cobrinha ---------
-;CheckEatFruit: CALL EatFruit
+CheckEatFruitLeft: CALL EatFruit
 
 		;-------------- movimentação -----------
 
