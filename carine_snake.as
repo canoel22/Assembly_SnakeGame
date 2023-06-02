@@ -163,31 +163,16 @@ EsqueletoRotina: PUSH R1
 PrintSnake: PUSH R1
 		PUSH R2
 		PUSH R3
+		PUSH R4
+		PUSH R5
 
-		MOV R1, M[ListHead]
-
-;------------------- loop pra printar a cobra ----------------------
-
-PrintaO: MOV R3, R1
-		INC R3
-		SHL R1, 8d 
-		OR  R1, R3
-		MOV M[ CURSOR ], R1
-		MOV R1, 'o'
-		MOV M[ IO_WRITE ], R1
-		MOV R1, M[ListHead] ;Compara se já chegamos à cabeça
-		MOV R2, M[ListTail]
-		INC R1
-		CMP R1, R2 
-		JMP.NZ PrintaO
-
-;------------------- printa a cauda ----------------------
+;------------------- apaga a pos da cauda atual----------------------
 
 		MOV R1, M[ListTail] ; Tail line
 		MOV R1, M[ R1 ]
 		MOV R2, M[ListTail]
 		INC R2
-		MOV R2, M[ R2 ]              ; Tail Column
+		MOV R2, M[ R2 ] ; Tail Column
 
 		SHL R1, 8d 
 		OR  R1, R2
@@ -195,6 +180,27 @@ PrintaO: MOV R3, R1
 		MOV R1, ' '
 		MOV M[ IO_WRITE ], R1
 
+;------------------- loop pra printar a cobra ----------------------
+
+		MOV R4, M[ListHead]
+		MOV R5, M[ListTail]
+
+
+PrintaO: CMP R4, R5
+		JMP.Z PrintSnakeEnd
+		MOV R1, M[ R4 ] 
+		INC R4
+		MOV R2, M[ R4 ] 
+		INC R4
+		SHL R1, 8d
+		OR R1, R2
+		MOV M[ CURSOR ], R1
+		MOV R3, 'o'
+		MOV M[ IO_WRITE ], R3
+		JMP PrintaO
+
+PrintSnakeEnd: POP R5
+		POP R4
 		POP R3
 		POP R2
 		POP R1
@@ -308,25 +314,7 @@ CicloShiftAndMaintainSize:MOV R4, M[R1]
 		INC R6
 		MOV M[R6], R2
 
-		
-		SHL R1, 8d 
-		OR  R1, R2
-		MOV M[ CURSOR ], R1
-		MOV R1, 'o'
-		MOV M[ IO_WRITE ], R1
-
-
-		MOV R1, M[ListTail] ; Tail line
-		MOV R1, M[ R1 ]
-		MOV R2, M[ListTail]
-		INC R2
-		MOV R2, M[ R2 ]              ; Tail Column
-
-		SHL R1, 8d 
-		OR  R1, R2
-		MOV M[ CURSOR ], R1
-		MOV R1, ' '
-		MOV M[ IO_WRITE ], R1
+		CALL PrintSnake
 
 		MOV R1, M[ListTail]
 		MOV M[R1], R0
