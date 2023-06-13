@@ -84,7 +84,7 @@ LineNumberToPrint    WORD 0d  ;linha que vai ser printada
 PrintLoseLine		 WORD 0d
 PrintWinLine		 WORD 0d
 
-GameOver		WORD FALSE
+GameOver			WORD FALSE
 
 LineSnakeHead		 WORD 11d
 ColumnSnakeHead	  	 WORD 37d
@@ -158,54 +158,44 @@ EsqueletoRotina: PUSH R1
 		RET
 
 ;----------------------------------------------------------------
-; Rotina: PrintSnake
+; Rotina: 	SnakeColision
 ;----------------------------------------------------------------
-PrintSnake: PUSH R1
-		PUSH R2
-		PUSH R3
-		PUSH R4
-		PUSH R5
+SnakeColision: PUSH R1
+	PUSH R2
+	PUSH R3
+	PUSH R4
+	PUSH R5
+	PUSH R6
 
-;------------------- apaga a pos da cauda atual----------------------
+	MOV R3, M[ ListHead ] ; Contador
+	MOV R4, M[ ListTail ]
+	DEC R4
 
-		MOV R1, M[ListTail] ; Tail line
-		MOV R1, M[ R1 ]
-		MOV R2, M[ListTail]
-		INC R2
-		MOV R2, M[ R2 ] ; Tail Column
+	MOV R1, M[ LineSnakeHead ]
+	MOV R2, M[ ColumnSnakeHead ]
 
-		SHL R1, 8d 
-		OR  R1, R2
-		MOV M[ CURSOR ], R1
-		MOV R1, ' '
-		MOV M[ IO_WRITE ], R1
+	CicloCheckSnakeCollision: CMP R3, R4 ; Compara se já chegamos à tail
+		JMP.Z CheckSnakeCollisionEnd
+		MOV R5, M[ R3 ]
+		DEC R3
+		CMP R5, R2 ; Compara coluna do corpo com a da head
+		JMP.NZ CicloCheckSnakeCollision
+		MOV R6, M[ R3 ]
+		CMP R6, R1 ; Compara linha do corpo com a da head
 
-;------------------- loop pra printar a cobra ----------------------
+		CALL.Z PrintLose
+		JMP CicloCheckSnakeCollision
 
-		MOV R4, M[ListHead]
-		MOV R5, M[ListTail]
-
-
-PrintaO: CMP R4, R5
-		JMP.Z PrintSnakeEnd
-		MOV R1, M[ R4 ] 
-		INC R4
-		MOV R2, M[ R4 ] 
-		INC R4
-		SHL R1, 8d
-		OR R1, R2
-		MOV M[ CURSOR ], R1
-		MOV R3, 'o'
-		MOV M[ IO_WRITE ], R3
-		JMP PrintaO
-
-PrintSnakeEnd: POP R5
+	CheckSnakeCollisionEnd:	POP R6
+		POP R5
 		POP R4
 		POP R3
 		POP R2
 		POP R1
 
-		RET
+	RET
+
+
 
 ;----------------------------------------------------------------
 ; Rotina: ShiftListAndIncreaseList
@@ -244,21 +234,11 @@ CicloShift:MOV R4, M[R1]
 		INC R6
 		MOV M[R6], R2
 
-		SHL R1, 8d 
-		OR  R1, R2
-		MOV M[ CURSOR ], R1
-		MOV R1, 'o'
-		MOV M[ IO_WRITE ], R1
-
-
-		MOV R1, M[ListTail] ; Tail line
-		MOV R1, M[ R1 ]
-		MOV R2, M[ListTail]
-		INC R2
-		MOV R2, M[ R2 ]              ; Tail Column
+		INC M[ListTail]
+		INC M[ListTail]
 
 		SHL R1, 8d 
-		OR  R1, R2
+OrShift:OR  R1, R2
 		MOV M[ CURSOR ], R1
 		MOV R1, 'o'
 		MOV M[ IO_WRITE ], R1
@@ -314,7 +294,25 @@ CicloShiftAndMaintainSize:MOV R4, M[R1]
 		INC R6
 		MOV M[R6], R2
 
-		CALL PrintSnake
+		
+		SHL R1, 8d 
+		OR  R1, R2
+		MOV M[ CURSOR ], R1
+		MOV R1, 'o'
+		MOV M[ IO_WRITE ], R1
+
+
+		MOV R1, M[ListTail] ; Tail line
+		MOV R1, M[ R1 ]
+		MOV R2, M[ListTail]
+		INC R2
+		MOV R2, M[ R2 ]              ; Tail Column
+
+		SHL R1, 8d 
+		OR  R1, R2
+		MOV M[ CURSOR ], R1
+		MOV R1, ' '
+		MOV M[ IO_WRITE ], R1
 
 		MOV R1, M[ListTail]
 		MOV M[R1], R0
@@ -354,13 +352,13 @@ EatFruit: PUSH R1
 
 ;------------------ atualiza a lista e printa------------	
 
-		;MOV R1, M[ LineSnakeHead ]
-		;MOV M[ LineArgShiftList], R1
+		MOV R1, M[ LineSnakeHead ]
+		MOV M[ LineArgShiftList], R1
 
-		;INC M[ ColumnSnakeHead ]
-		;MOV R1, M[ ColumnSnakeHead ]
-		;MOV M[ ColumnArgShiftList], R1
-		;CALL ShiftListAndIncreaseList
+		INC M[ ColumnSnakeHead ]
+		MOV R1, M[ ColumnSnakeHead ]
+		MOV M[ ColumnArgShiftList], R1
+		CALL ShiftListAndIncreaseList
 
 ;------------------calcula a nova pos da comida------------				  
 
@@ -601,6 +599,9 @@ MoveSnakeRight: PUSH R1
 		MOV M[ GameOver ], R1
 		CALL Lose
 
+		;------------ colisão com a cobrinha ---------
+		CALL SnakeColision
+
 		;------------ cresce a cobrinha ---------
 CheckEatFruitRight: CALL EatFruit
 
@@ -639,6 +640,9 @@ MoveSnakeUp:  PUSH R1
 		MOV M[ GameOver ], R1
 		CALL Lose
 
+		;------------ colisão com a cobrinha ---------
+		CALL SnakeColision
+
 		;------------ cresce a cobrinha ---------
 CheckEatFruitUp: CALL EatFruit
 
@@ -676,6 +680,9 @@ MoveSnakeDown:  PUSH R1
 		MOV M[ GameOver ], R1
 		CALL Lose
 
+		;------------ colisão com a cobrinha ---------
+		CALL SnakeColision
+
 		;------------ cresce a cobrinha ---------
 CheckEatFruitDown: CALL EatFruit
 
@@ -712,6 +719,9 @@ MoveSnakeLeft:  PUSH R1
 		MOV R1, TRUE
 		MOV M[ GameOver ], R1
 		CALL Lose
+
+		;------------ colisão com a cobrinha ---------
+		CALL SnakeColision
 
 		;------------ cresce a cobrinha ---------
 CheckEatFruitLeft: CALL EatFruit
