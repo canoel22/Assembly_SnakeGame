@@ -167,21 +167,22 @@ SnakeColision: PUSH R1
 	PUSH R5
 	PUSH R6
 
-	MOV R3, M[ ListHead ] ; Contador
+	MOV R3, ListHead 
 	MOV R4, M[ ListTail ]
-	DEC R4
 
-	MOV R1, M[ LineSnakeHead ]
-	MOV R2, M[ ColumnSnakeHead ]
+	MOV R1, M[R3 ]; Linha da cabeça 
+	INC R3
+	MOV R2, M[R3] ; Coluna da cabeça
 
 	CicloCheckSnakeCollision: CMP R3, R4 ; Compara se já chegamos à tail
 		JMP.Z CheckSnakeCollisionEnd
+		INC R3
 		MOV R5, M[ R3 ]
-		DEC R3
-		CMP R5, R2 ; Compara coluna do corpo com a da head
+		INC R3
+		CMP R5, R1 ; Compara a linha do corpo com a da head
 		JMP.NZ CicloCheckSnakeCollision
 		MOV R6, M[ R3 ]
-		CMP R6, R1 ; Compara linha do corpo com a da head
+		CMP R6, R2 ; Compara coluna do corpo com a da head
 
 		CALL.Z PrintLose
 		JMP CicloCheckSnakeCollision
@@ -233,6 +234,9 @@ CicloShift:MOV R4, M[R1]
 		MOV M[R6], R1
 		INC R6
 		MOV M[R6], R2
+
+		MOV M[LineSnakeHead], R1
+		MOV M[ColumnSnakeHead], R2
 
 		INC M[ListTail]
 		INC M[ListTail]
@@ -294,6 +298,8 @@ CicloShiftAndMaintainSize:MOV R4, M[R1]
 		INC R6
 		MOV M[R6], R2
 
+		MOV M[LineSnakeHead], R1
+		MOV M[ColumnSnakeHead], R2
 		
 		SHL R1, 8d 
 		OR  R1, R2
