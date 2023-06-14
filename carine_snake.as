@@ -167,32 +167,31 @@ SnakeColision: PUSH R1
 	PUSH R5
 	PUSH R6
 
-	MOV R3, ListHead 
-	MOV R4, M[ ListTail ]
-
-	MOV R1, M[R3 ]; Linha da cabeça 
+	MOV R1, M[LineSnakeHead]
+	MOV R3, M[ColumnSnakeHead]
+	
+	MOV R3, ListHead
+	MOV R4, M[ListTail]
 	INC R3
-	MOV R2, M[R3] ; Coluna da cabeça
 
-	CicloCheckSnakeCollision: CMP R3, R4 ; Compara se já chegamos à tail
-		JMP.Z CheckSnakeCollisionEnd
-		INC R3
-		MOV R5, M[ R3 ]
-		INC R3
-		CMP R5, R1 ; Compara a linha do corpo com a da head
-		JMP.NZ CicloCheckSnakeCollision
-		MOV R6, M[ R3 ]
-		CMP R6, R2 ; Compara coluna do corpo com a da head
+CicloCompara: INC R3
+	CMP R3, R4
+	JMP.Z EndColision
+	MOV R5, M[R3]
+	INC R3
+	CMP R5, R1
+	JMP.NZ CicloCompara
+	MOV R6, M[R3]
+	CMP R6, R2
+	CALL.Z 	Lose
+	JMP CicloCompara
 
-		CALL.Z PrintLose
-		JMP CicloCheckSnakeCollision
-
-	CheckSnakeCollisionEnd:	POP R6
-		POP R5
-		POP R4
-		POP R3
-		POP R2
-		POP R1
+	EndColision: POP R6
+	POP R5
+	POP R4
+	POP R3
+	POP R2
+	POP R1
 
 	RET
 
@@ -605,11 +604,11 @@ MoveSnakeRight: PUSH R1
 		MOV M[ GameOver ], R1
 		CALL Lose
 
-		;------------ colisão com a cobrinha ---------
-		CALL SnakeColision
-
 		;------------ cresce a cobrinha ---------
 CheckEatFruitRight: CALL EatFruit
+
+		;------------ colisão com a cobrinha ---------
+		CALL SnakeColision
 
 		;-------------- movimentação -----------
 
@@ -646,11 +645,11 @@ MoveSnakeUp:  PUSH R1
 		MOV M[ GameOver ], R1
 		CALL Lose
 
-		;------------ colisão com a cobrinha ---------
-		CALL SnakeColision
-
 		;------------ cresce a cobrinha ---------
 CheckEatFruitUp: CALL EatFruit
+
+		;------------ colisão com a cobrinha ---------
+		CALL SnakeColision
 
 		;-------------- movimentação -----------
 
@@ -686,11 +685,12 @@ MoveSnakeDown:  PUSH R1
 		MOV M[ GameOver ], R1
 		CALL Lose
 
-		;------------ colisão com a cobrinha ---------
-		CALL SnakeColision
 
 		;------------ cresce a cobrinha ---------
 CheckEatFruitDown: CALL EatFruit
+
+		;------------ colisão com a cobrinha ---------
+		CALL SnakeColision
 
 		;-------------- movimentação -----------
 
@@ -726,11 +726,11 @@ MoveSnakeLeft:  PUSH R1
 		MOV M[ GameOver ], R1
 		CALL Lose
 
-		;------------ colisão com a cobrinha ---------
-		CALL SnakeColision
-
 		;------------ cresce a cobrinha ---------
 CheckEatFruitLeft: CALL EatFruit
+
+		;------------ colisão com a cobrinha ---------
+		CALL SnakeColision
 
 		;-------------- movimentação -----------
 
