@@ -105,7 +105,9 @@ ScoreDez			WORD '0'
 ScoreUnid			WORD '0'
 
 ScoreUndidLine 		WORD 0d
-ScoreUnidColumn		WORD 12d 
+ScoreUnidColumn		WORD 12d
+
+SnakeScore 			WORD 0d
 
 
 ;------------ random ------------- 
@@ -167,8 +169,16 @@ SnakeColision: PUSH R1
 	PUSH R5
 	PUSH R6
 
-	MOV R1, M[LineSnakeHead]
-	MOV R3, M[ColumnSnakeHead]
+	MOV R1, M[ SnakeScore ]
+	CMP R1, 5d 
+	JMP.Z DebugSnakeCollision
+	JMP EndColision
+
+DebugSnakeCollision: NOP
+
+
+ContinueSnakeCollision:	MOV R1, M[LineSnakeHead]
+	MOV R2, M[ColumnSnakeHead]
 	
 	MOV R3, ListHead
 	MOV R4, M[ListTail]
@@ -357,7 +367,7 @@ EatFruit: PUSH R1
 
 ;------------------ atualiza a lista e printa------------	
 
-		MOV R1, M[ LineSnakeHead ]
+	DebugShift: MOV R1, M[ LineSnakeHead ]
 		MOV M[ LineArgShiftList], R1
 
 		INC M[ ColumnSnakeHead ]
@@ -433,8 +443,10 @@ Score:  PUSH R1
 		PUSH R2
 		PUSH R3
 
-		MOV R1, M[ ScoreUnid]
-		MOV R2, M[ ScoreDez]
+		INC M[ SnakeScore ]
+
+		MOV R1, M[ ScoreUnid ]
+		MOV R2, M[ ScoreDez ]
 		MOV R3, 57d
 
 		CMP R1, R3 ;compara se a unidade é 9 (em ASCII)
