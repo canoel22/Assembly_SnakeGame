@@ -2,20 +2,20 @@
 ; ZONA I: Definicao de constantes
 ;         Pseudo-instrucao : EQU
 ;------------------------------------------------------------------------------
-CR                EQU     0Ah
-FIM_TEXTO         EQU     '@'
-IO_READ           EQU     FFFFh
-IO_WRITE          EQU     FFFEh
-IO_STATUS         EQU     FFFDh
-INITIAL_SP        EQU     FDFFh
-CURSOR		      EQU     FFFCh
-CURSOR_INIT	  	  EQU	  FFFFh
+CR                	EQU     0Ah
+FIM_TEXTO         	EQU     '@'
+IO_READ           	EQU     FFFFh
+IO_WRITE          	EQU     FFFEh
+IO_STATUS         	EQU     FFFDh
+INITIAL_SP       	EQU     FDFFh
+CURSOR		      	EQU     FFFCh
+CURSOR_INIT	  	  	EQU	 	FFFFh
 
 ;padrão de geração de bits
-RND_MASK			EQU   8016h
-LSB_MASK			EQU   0001h
-PRIME_NUMER_1       EQU   11d
-PRIME_NUMER_2       EQU   13d
+RND_MASK			EQU   	8016h
+LSB_MASK			EQU   	0001h
+PRIME_NUMER_1       EQU   	11d
+PRIME_NUMER_2       EQU   	13d
 
 ROW_POSITION	    EQU		0d
 COL_POSITION	    EQU		0d
@@ -25,21 +25,21 @@ COLUMN_SHIFT	    EQU  	8d
 LINE_SIZE	        EQU     80d
 COLUMN_SIZE       	EQU     24d
 
-TIMER_UNITS       EQU     FFF6h
-TIMER_SET         EQU     FFF7h
+TIMER_UNITS       	EQU     FFF6h
+TIMER_SET         	EQU     FFF7h
 
-ON                EQU     1d
-OFF               EQU     0d
+ON                	EQU     1d
+OFF               	EQU     0d
 
-LEFT_KEY_PRESSED  EQU     0d
-RIGHT_KEY_PRESSED EQU     1d
-UP_KEY_PRESSED    EQU     2d
-DOWN_KEY_PRESSED  EQU     3d
+LEFT_KEY_PRESSED  	EQU     0d
+RIGHT_KEY_PRESSED 	EQU     1d
+UP_KEY_PRESSED   	EQU     2d
+DOWN_KEY_PRESSED  	EQU     3d
 
-TIME_TO_MOVE      EQU     5d
+TIME_TO_MOVE      	EQU     5d
 
-FALSE 				EQU 0d
-TRUE 			EQU 1d
+FALSE 				EQU 	0d
+TRUE 				EQU 	1d
 ;------------------------------------------------------------------------------
 ; ZONA II: definicao de variaveis
 ;          Pseudo-instrucoes : WORD - palavra (16 bits)
@@ -84,7 +84,7 @@ LineNumberToPrint    WORD 0d  ;linha que vai ser printada
 PrintLoseLine		 WORD 0d
 PrintWinLine		 WORD 0d
 
-GameOver			WORD FALSE
+GameOver			 WORD FALSE
 
 LineSnakeHead		 WORD 11d
 ColumnSnakeHead	  	 WORD 37d
@@ -160,7 +160,7 @@ EsqueletoRotina: PUSH R1
 		RET
 
 ;----------------------------------------------------------------
-; Rotina: 	SnakeColision
+; Rotina: 	SnakeColision -> confere colisão com a própria cobra
 ;----------------------------------------------------------------
 SnakeColision: PUSH R1
 	PUSH R2
@@ -169,31 +169,23 @@ SnakeColision: PUSH R1
 	PUSH R5
 	PUSH R6
 
-	MOV R1, M[ SnakeScore ]
-	CMP R1, 5d 
-	JMP.Z DebugSnakeCollision
-	JMP EndColision
-
-DebugSnakeCollision: NOP
-
-
-ContinueSnakeCollision:	MOV R1, M[LineSnakeHead]
+	MOV R1, M[LineSnakeHead]
 	MOV R2, M[ColumnSnakeHead]
 	
 	MOV R3, ListHead
 	MOV R4, M[ListTail]
 	INC R3
 
-CicloCompara: INC R3
+CicloCompara: INC R3 
 	CMP R3, R4
-	JMP.Z EndColision
+	JMP.Z EndColision ; -> compara se já chegamos à tail, caso não, continuamos com as comparações entre a head e o corpo
 	MOV R5, M[R3]
 	INC R3
 	CMP R5, R1
 	JMP.NZ CicloCompara
 	MOV R6, M[R3]
 	CMP R6, R2
-	CALL.Z 	Lose
+	CALL.Z 	Lose ; -> caso seja igual, perde
 	JMP CicloCompara
 
 	EndColision: POP R6
@@ -207,9 +199,9 @@ CicloCompara: INC R3
 
 
 
-;----------------------------------------------------------------
-; Rotina: ShiftListAndIncreaseList
-;----------------------------------------------------------------
+;-----------------------------------------------------------------------------------------------------------------------
+; Rotina: ShiftListAndIncreaseList -> empurramos a lista toda pro lado e adicionamos uma nova cabeça, aumentando o tamanho
+;-----------------------------------------------------------------------------------------------------------------------
 ShiftListAndIncreaseList: PUSH R1
 		PUSH R2
 		PUSH R3
@@ -224,6 +216,7 @@ ShiftListAndIncreaseList: PUSH R1
 				
  
 ;------------------- faz o shift da lista toda pro lado ----------------------
+
 CicloShift:MOV R4, M[R1]
 		MOV R5, R1
 		MOV R2, 2d
@@ -244,11 +237,17 @@ CicloShift:MOV R4, M[R1]
 		INC R6
 		MOV M[R6], R2
 
-		MOV M[LineSnakeHead], R1
+;---------------- atualiza a linha e a coluna do snake head ------------------
+
+		MOV M[LineSnakeHead], R1 
 		MOV M[ColumnSnakeHead], R2
 
+;---------------------------- atualiza a tail  --------------------------------
+
+		INC M[ListTail] 
 		INC M[ListTail]
-		INC M[ListTail]
+
+;----------------------------- printa na tela  --------------------------------
 
 		SHL R1, 8d 
 OrShift:OR  R1, R2
@@ -270,9 +269,9 @@ OrShift:OR  R1, R2
 
 		RET
 
-;----------------------------------------------------------------
-; Rotina: ShiftListAndMaitainSize
-;----------------------------------------------------------------
+;-----------------------------------------------------------------------------------------------------------------------
+; Rotina: ShiftListAndMaintainSize -> empurramos a lista toda pro lado e adicionamos uma nova cabeça, mantendo o tamanho
+;-----------------------------------------------------------------------------------------------------------------------
 ShiftListAndMaintainSize: PUSH R1
 		PUSH R2
 		PUSH R3
@@ -287,6 +286,7 @@ ShiftListAndMaintainSize: PUSH R1
 				
  
 ;------------------- faz o shift da lista toda pro lado ----------------------
+
 CicloShiftAndMaintainSize:MOV R4, M[R1]
 		MOV R5, R1
 		MOV R2, 2d
@@ -309,20 +309,21 @@ CicloShiftAndMaintainSize:MOV R4, M[R1]
 
 		MOV M[LineSnakeHead], R1
 		MOV M[ColumnSnakeHead], R2
-		
+
+;--------------------------- printa na tela a head ------------------------------
 		SHL R1, 8d 
 		OR  R1, R2
 		MOV M[ CURSOR ], R1
 		MOV R1, 'o'
 		MOV M[ IO_WRITE ], R1
 
-
 		MOV R1, M[ListTail] ; Tail line
 		MOV R1, M[ R1 ]
 		MOV R2, M[ListTail]
 		INC R2
-		MOV R2, M[ R2 ]              ; Tail Column
+		MOV R2, M[ R2 ]; Tail Column
 
+;------------------------------ remove a cauda ---------------------------------
 		SHL R1, 8d 
 		OR  R1, R2
 		MOV M[ CURSOR ], R1
@@ -344,9 +345,9 @@ CicloShiftAndMaintainSize:MOV R4, M[R1]
 		RET
 
 
-;----------------------------------------------------------------
-; Rotina: EatFruit
-;----------------------------------------------------------------
+;------------------------------------------------------------------------------------------------------------
+; Rotina: EatFruit -> confere se comeu a fruta, atualiza na lita, reprinta a fruta em um novo lugar aleatório
+;------------------------------------------------------------------------------------------------------------
 EatFruit: PUSH R1
 		PUSH R2
 		PUSH R3
@@ -365,7 +366,7 @@ EatFruit: PUSH R1
 
 		CALL Score
 
-;------------------ atualiza a lista e printa------------	
+;------------------------ atualiza a lista e printa ------------------	
 
 	DebugShift: MOV R1, M[ LineSnakeHead ]
 		MOV M[ LineArgShiftList], R1
@@ -375,7 +376,7 @@ EatFruit: PUSH R1
 		MOV M[ ColumnArgShiftList], R1
 		CALL ShiftListAndIncreaseList
 
-;------------------calcula a nova pos da comida------------				  
+;------------------ calcula a nova pos da comida e printa ------------				  
 
 NewFruitPosition:CALL RandomV1
 		MOV R1, M[ Random_Var]
@@ -437,7 +438,7 @@ Rnd_Rotate: ROR M[Random_Var], 1
 
 
 ;----------------------------------------------------------------
-; Rotina: Score
+; Rotina: Score -> atualiza o score
 ;----------------------------------------------------------------
 Score:  PUSH R1
 		PUSH R2
@@ -487,7 +488,7 @@ EndScore:POP R3
 		RET
 
 ;----------------------------------------------------------------
-; Rotina: InsertList
+; Rotina: InsertList -> insere a head inicial na lista
 ;----------------------------------------------------------------
 InsertList:  PUSH R1
 		PUSH R2
@@ -501,6 +502,9 @@ InsertList:  PUSH R1
 		MOV M[R3], R2
 		INC R3
 		MOV M[ListTail], R3
+
+		MOV M[LineSnakeHead], R1
+		MOV M[ColumnSnakeHead], R2
 
 		POP R3
 		POP R2
@@ -525,50 +529,74 @@ ConfigureTimer:  PUSH R1
  ;----------------------------------------------------------------
  ; Rotina: RightKeyPressed
  ;----------------------------------------------------------------
- RightKeyPressed:     PUSH R1
+ RightKeyPressed:    PUSH R1
+	PUSH R2
 
-		MOV R1, RIGHT_KEY_PRESSED
-		MOV M[LastKeyPressed], R1
+	MOV R2, M[ LastKeyPressed ]
+	CMP R2, LEFT_KEY_PRESSED
+	JMP.Z RightKeyPressedEnd
 
-		POP R1
+	MOV R1, RIGHT_KEY_PRESSED
+	MOV M[ LastKeyPressed ], R1
 
-		RTI
+	RightKeyPressedEnd: POP R2
+	POP R1
+	RTI
+
 
 ;----------------------------------------------------------------
 ; Rotina: LeftKeyPressed
 ;----------------------------------------------------------------
 LeftKeyPressed:     PUSH R1
+	PUSH R2
 
-		MOV R1, LEFT_KEY_PRESSED
-		MOV M[LastKeyPressed], R1
+	MOV R2, M[ LastKeyPressed ]
+	CMP R2, RIGHT_KEY_PRESSED
+	JMP.Z LeftKeyPressedEnd
 
-		POP R1
+	MOV R1, LEFT_KEY_PRESSED
+	MOV M[ LastKeyPressed ], R1
 
-		RTI
+	LeftKeyPressedEnd: POP R2
+	POP R1
+
+	RTI
 
 ;----------------------------------------------------------------
 ; Rotina: UpKeyPressed
 ;----------------------------------------------------------------
-UpKeyPressed:      PUSH R1
+UpKeyPressed:     PUSH R1
+	PUSH R2
 
-		MOV R1, UP_KEY_PRESSED
-		MOV M[LastKeyPressed], R1
+	MOV R2, M[ LastKeyPressed ]
+	CMP R2, DOWN_KEY_PRESSED
+	JMP.Z UpKeyPressedEnd
 
-		POP R1
+	MOV R1, UP_KEY_PRESSED
+	MOV M[ LastKeyPressed ], R1
 
-		RTI
+	UpKeyPressedEnd: POP R2
+	POP R1
+
+	RTI
 
 ;----------------------------------------------------------------
 ; Rotina: DownKeyPressed
 ;----------------------------------------------------------------
 DownKeyPressed:    PUSH R1
+	PUSH R2
 
-		MOV R1, DOWN_KEY_PRESSED
-		MOV M[LastKeyPressed], R1
+	MOV R2, M[ LastKeyPressed ]
+	CMP R2, UP_KEY_PRESSED
+	JMP.Z DownKeyPressedEnd
 
-		POP R1
+	MOV R1, DOWN_KEY_PRESSED
+	MOV M[ LastKeyPressed ], R1
 
-		RTI
+	DownKeyPressedEnd: POP R2
+	POP R1
+				
+	RTI
 ;----------------------------------------------------------------
 ; Rotina: Timer
 ;----------------------------------------------------------------
@@ -725,7 +753,7 @@ UpdateSnakeDown: MOV R1, M[ ColumnSnakeHead ]
 ; Rotina: MoveSnakeLeft
 ;----------------------------------------------------------------
 MoveSnakeLeft:  PUSH R1
-						PUSH R2
+				PUSH R2
 		PUSH R3
 		PUSH R4
 		
@@ -818,7 +846,7 @@ PrintMap: PUSH R1
 		  RET;
 		  
 ;----------------------------------------------------------------
-; Rotina: Lose
+; Rotina: Lose -> printa a tela de perda e o jogo acaba
 ;----------------------------------------------------------------
 Lose : PUSH R1
 		PUSH R2 
@@ -853,7 +881,7 @@ LoseForever: JMP LoseForever
 		RET
 
 ;----------------------------------------------------------------
-; Rotina: Win
+; Rotina: Win -> printa a tela de vitória e o jogo acaba
 ;----------------------------------------------------------------
 Win : PUSH R1
 		PUSH R2 
